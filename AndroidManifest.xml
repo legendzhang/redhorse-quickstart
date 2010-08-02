@@ -13,6 +13,8 @@
         </activity>
 		<activity android:name=".AppGrid">
 		</activity>
+		<activity android:name=".AppConfig">
+		</activity>
 
     </application>
     <uses-sdk android:minSdkVersion="3" />
