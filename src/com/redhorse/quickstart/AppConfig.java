@@ -37,6 +37,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Need the following import to get access to the app resources, since this
@@ -44,13 +46,22 @@ import java.util.List;
 
 public class AppConfig extends Activity implements OnItemClickListener {
 
-	GridView mList;
+	private GridView mList;
+	private dbStartConfigAdapter dbStart = null;
+	private List<Integer> selectList;
+	private List<Integer> colorList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        loadApps(); // do this in onresume?
+        dbStart = new dbStartConfigAdapter(this);
+        dbStart.open();
+        
+        selectList = new ArrayList<Integer>();
+        colorList = new ArrayList<Integer>();
+        
+		loadApps(); // do this in onresume?
 
         setContentView(R.layout.applist);
         mList = (GridView) findViewById(R.id.list);
@@ -64,9 +75,17 @@ public class AppConfig extends Activity implements OnItemClickListener {
 
     private OnClickListener Button01Listener = new OnClickListener() {
         public void onClick(View v) {
+        	
+        	dbStart.deleteAllItems();
+        	Iterator it1 = selectList.iterator();
+            while(it1.hasNext()){
+            	ResolveInfo info = mApps.get((Integer)it1.next());
+        		dbStart.insertItem(info.activityInfo.packageName, info.activityInfo.name, "");
+            }
+
 			Intent i = getIntent();  
 	        Bundle b = new Bundle();  
-	        b.putString("msg", "hide");  
+	        b.putString("msg", "save");  
 	        i.putExtras(b);  
 	        AppConfig.this.setResult(RESULT_OK, i);  
 	        AppConfig.this.finish();
@@ -77,7 +96,7 @@ public class AppConfig extends Activity implements OnItemClickListener {
         public void onClick(View v) {
 			Intent i = getIntent();  
 	        Bundle b = new Bundle();  
-	        b.putString("msg", "config");  
+	        b.putString("msg", "quit");  
 	        i.putExtras(b);  
 	        AppConfig.this.setResult(RESULT_OK, i);  
 	        AppConfig.this.finish();
@@ -98,8 +117,19 @@ public class AppConfig extends Activity implements OnItemClickListener {
         // TODO Auto-generated method stub
         //重置上次颜色为Color.BLACK
         LinearLayout lLayout = (LinearLayout)view;
-        lLayout.setBackgroundColor(Color.RED);
-        
+
+        if (!selectList.contains((Integer)position)) {
+//            lLayout.setBackgroundColor(android.graphics.Color.parseColor("#FE8F01"));
+        	TextView lText = (TextView)lLayout.getChildAt(1);
+        	lText.setTextColor(Color.RED);
+            selectList.add((Integer)position);
+        }
+        else { 
+//            lLayout.setBackgroundColor(Color.BLACK);
+        	TextView lText = (TextView)lLayout.getChildAt(1);
+        	lText.setTextColor(colorList.get(position));
+            selectList.remove((Integer)position);
+        }
 //        ImageView lImage = (ImageView)lLayout.getChildAt(0);
 //        TextView lText = (TextView)lLayout.getChildAt(1);
         
@@ -111,6 +141,7 @@ public class AppConfig extends Activity implements OnItemClickListener {
     
 
     public class AppsAdapter extends BaseAdapter {
+    	
         public AppsAdapter() {
         }
 
@@ -132,6 +163,7 @@ public class AppConfig extends Activity implements OnItemClickListener {
               
             TextView mTextView = (TextView)convertView.findViewById(R.id.imageTitle);  
             mTextView.setText(info.activityInfo.loadLabel(getPackageManager()).toString());  
+            colorList.add(mTextView.getCurrentTextColor());
             ImageView mImageView = (ImageView)convertView.findViewById(R.id.imageView);  
             mImageView.setImageDrawable(info.activityInfo.loadIcon(getPackageManager()));  
             return convertView;          	
@@ -152,7 +184,7 @@ public class AppConfig extends Activity implements OnItemClickListener {
 
         public View addTitleView(Drawable image, String title){  
             LinearLayout layout = new LinearLayout(AppConfig.this);  
-            layout.setOrientation(LinearLayout.HORIZONTAL);  
+            layout.setOrientation(LinearLayout.HORIZONTAL);
               
             ImageView iv = new ImageView(AppConfig.this);  
             iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
