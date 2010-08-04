@@ -17,6 +17,7 @@
 package com.redhorse.quickstart;
 
 import android.app.Activity;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -33,6 +34,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TabHost;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -64,7 +66,14 @@ public class AppConfig extends Activity implements OnItemClickListener {
 		loadApps(); // do this in onresume?
 
         setContentView(R.layout.applist);
-        mList = (GridView) findViewById(R.id.list);
+        TabHost mTabHost = (TabHost)findViewById(R.id.tabhost); 
+        mTabHost.setup();
+        LayoutInflater inflater_tab1 = LayoutInflater.from(this);   
+        inflater_tab1.inflate(R.layout.grid1, mTabHost.getTabContentView());  
+        inflater_tab1.inflate(R.layout.grid2, mTabHost.getTabContentView());
+        mTabHost.addTab(mTabHost.newTabSpec("tab_test1").setIndicator("TAB a").setContent(R.id.list1));   
+        mTabHost.addTab(mTabHost.newTabSpec("tab_test2").setIndicator("TAB b").setContent(R.id.list2));  
+        mList = (GridView) findViewById(R.id.list1);
         mList.setAdapter(new AppsAdapter());
         mList.setOnItemClickListener(this);   
         Button button = (Button)findViewById(R.id.Button01);
