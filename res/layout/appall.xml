@@ -18,6 +18,7 @@
 	</GridView>
 	<LinearLayout android:layout_weight="1" android:id="@+id/LinearLayout01" android:layout_width="fill_parent" android:layout_height="100dp" 
 		xmlns:android="http://schemas.android.com/apk/res/android" android:gravity="center" android:padding="1dip">
+		<Button android:text="微博分享" android:layout_weight="2" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/weiboall"></Button>
 		<Button android:text="返回" android:layout_weight="2" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/Button01"></Button>
 	</LinearLayout>
 </LinearLayout>

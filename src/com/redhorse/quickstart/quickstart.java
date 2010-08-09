@@ -42,6 +42,7 @@ public class quickstart extends Activity implements OnItemClickListener {
 	private List<ResolveInfo> mAllApps;
 	private static final int STARTALL_REQUEST = 0;
 	private static final int STARTCONFIG_REQUEST = 1;
+	private static final int STARTWEIBO_REQUEST = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +68,8 @@ public class quickstart extends Activity implements OnItemClickListener {
 		button.setOnClickListener(Button02Listener);
 		button = (Button) findViewById(R.id.Button03);
 		button.setOnClickListener(Button03Listener);
+		button = (Button) findViewById(R.id.weibogrid);
+		button.setOnClickListener(weibogridListener);
 	}
 
 	@Override
@@ -120,6 +123,8 @@ public class quickstart extends Activity implements OnItemClickListener {
 				break;
 			}
 			break;
+		case STARTWEIBO_REQUEST:
+			break;
 		default:
 			finish();
 			break;
@@ -152,6 +157,14 @@ public class quickstart extends Activity implements OnItemClickListener {
 			quickstart.this.setResult(RESULT_OK, i);
 			dbStart.close();
 			quickstart.this.finish();
+		}
+	};
+
+	private OnClickListener weibogridListener = new OnClickListener() {
+		public void onClick(View v) {
+			Intent setting = new Intent();
+			setting.setClass(quickstart.this, weibo.class);
+			startActivityForResult(setting, STARTWEIBO_REQUEST);
 		}
 	};
 

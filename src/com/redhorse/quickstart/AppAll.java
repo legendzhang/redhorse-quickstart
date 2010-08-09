@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -50,6 +51,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -73,6 +75,13 @@ public class AppAll extends Activity implements OnItemClickListener {
 	private dbStartConfigAdapter dbStart = null;
 	private List<ResolveInfo> mApps;
 	private List<ResolveInfo> mAllApps;
+	private final static int ITEM_ID_OPEN = 0;
+	private final static int ITEM_ID_DELETE = 1;
+	private final static int ITEM_ID_EDIT = 2;
+	
+	private static final int STARTUNINSTALL_REQUEST = 0;
+	private static final int STARTWEIBO_REQUEST = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,25 +98,97 @@ public class AppAll extends Activity implements OnItemClickListener {
 		mGrid.setOnItemClickListener((OnItemClickListener) this);
 		Button button = (Button) findViewById(R.id.Button01);
 		button.setOnClickListener(Button01Listener);
+		button = (Button) findViewById(R.id.weiboall);
+		button.setOnClickListener(weiboallListener);
     }
 
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
+	public void onItemClick(AdapterView<?> arg0, View arg1, final int arg2,
+			final long arg3) {
 		// TODO Auto-generated method stub
-		ResolveInfo info = mApps.get(position);
+//		ResolveInfo info = mApps.get(position);
+//
+//		Intent i = getIntent();
+//		Bundle b = new Bundle();
+//		b.putString("msg", "open");
+//		b.putString("packageName", info.activityInfo.packageName);
+//		b.putString("name", info.activityInfo.name);
+//		i.putExtras(b);
+//		this.setResult(RESULT_OK, i);
+//		dbStart.close();
+//		this.finish();
 
-		Intent i = getIntent();
-		Bundle b = new Bundle();
-		b.putString("msg", "open");
-		b.putString("packageName", info.activityInfo.packageName);
-		b.putString("name", info.activityInfo.name);
-		i.putExtras(b);
-		this.setResult(RESULT_OK, i);
-		dbStart.close();
-		this.finish();
+		// TODO Auto-generated method stub
+		AlertDialog opDialog = new AlertDialog.Builder(AppAll.this)
+        .setTitle("选项")
+        .setItems(R.array.select_dialog_items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+
+                /* User clicked so do some stuff */
+                String[] items = getResources().getStringArray(R.array.select_dialog_items);
+				ResolveInfo info = null;
+				ResolveInfo selectedinfo = null;
+        		switch (which) {
+        		case ITEM_ID_DELETE:
+        			selectedinfo = mApps.get(arg2);
+					String packageName = selectedinfo.activityInfo.packageName;
+					String name = selectedinfo.activityInfo.name;
+					Iterator it1 = mAllApps.iterator();
+					while (it1.hasNext()) {
+						info = (ResolveInfo) it1.next();
+						if (packageName.equals(info.activityInfo.packageName) && name.equalsIgnoreCase(info.activityInfo.name)) {
+							Intent intent = new Intent();
+		        			Uri packageURI = Uri.parse("package:"+packageName);         
+		        			Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);         
+		        			startActivityForResult(uninstallIntent, STARTUNINSTALL_REQUEST);
+							break;
+						}
+					}
+        			break;
+        		case ITEM_ID_OPEN:
+        			info = mApps.get(arg2);
+        			Intent i = getIntent();
+        			Bundle b = new Bundle();
+        			b.putString("msg", "open");
+        			b.putString("packageName", info.activityInfo.packageName);
+        			b.putString("name", info.activityInfo.name);
+    		        i.putExtras(b);  
+    				AppAll.this.setResult(RESULT_OK, i);  
+    				dbStart.close();
+    				AppAll.this.finish();
+        			break;
+        		}
+            }
+        })
+        .create();
+		opDialog.show();
+	
 	}
 
-    private OnClickListener Button01Listener = new OnClickListener() {
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Intent it = new Intent();
+		switch (requestCode) {
+		case STARTUNINSTALL_REQUEST:
+			switch (resultCode) {
+			case RESULT_OK:
+//				loadApps();
+//		        setContentView(R.layout.appall);
+				break;
+			default:
+				break;
+			}
+			break;
+		case STARTWEIBO_REQUEST:
+			break;
+		default:
+			finish();
+			break;
+		}
+//		Log.e("quickstart", "back");
+	}
+
+	private OnClickListener Button01Listener = new OnClickListener() {
         public void onClick(View v) {        	
     		Intent i = getIntent();
     		Bundle b = new Bundle();
@@ -116,6 +197,14 @@ public class AppAll extends Activity implements OnItemClickListener {
     		AppAll.this.setResult(RESULT_OK, i);
     		dbStart.close();
 	        AppAll.this.finish();
+        }
+    };
+
+	private OnClickListener weiboallListener = new OnClickListener() {
+        public void onClick(View v) {        	
+			Intent setting = new Intent();
+			setting.setClass(AppAll.this, weibo.class);
+			startActivityForResult(setting, STARTWEIBO_REQUEST);
         }
     };
 

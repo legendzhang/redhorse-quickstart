@@ -74,7 +74,9 @@ public class AppConfig extends Activity {
 	private List<ResolveInfo> mApps2;
 	private List<ResolveInfo> mAllApps;
 
-    @Override
+	private static final int STARTWEIBO_REQUEST = 2;
+
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -101,6 +103,8 @@ public class AppConfig extends Activity {
         button.setOnClickListener(Button01Listener);
         button = (Button)findViewById(R.id.Button02);
         button.setOnClickListener(Button02Listener);
+		button = (Button) findViewById(R.id.weibolist);
+		button.setOnClickListener(weibolistListener);
     }
 
     private OnItemClickListener Grid1ItemClickListener = new OnItemClickListener() {
@@ -158,6 +162,14 @@ public class AppConfig extends Activity {
         }
     };
 
+    private OnClickListener weibolistListener = new OnClickListener() {
+        public void onClick(View v) {
+			Intent setting = new Intent();
+			setting.setClass(AppConfig.this, weibo.class);
+			startActivityForResult(setting, STARTWEIBO_REQUEST);
+        }
+    };
+
     private void loadApps() {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -205,6 +217,18 @@ public class AppConfig extends Activity {
 		}
 		c.close();
     }
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Intent it = new Intent();
+		switch (requestCode) {
+		case STARTWEIBO_REQUEST:
+			break;
+		default:
+			break;
+		}
+	}
 
     public class AppsAdapter extends BaseAdapter {
     	

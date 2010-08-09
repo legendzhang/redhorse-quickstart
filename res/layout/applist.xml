@@ -19,6 +19,9 @@
 		android:layout_width="fill_parent" android:layout_height="100dp"
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:gravity="center">
+		<Button android:text="微博分享" android:layout_weight="2"
+			android:layout_height="wrap_content" android:layout_width="fill_parent"
+			android:id="@+id/weibolist"></Button>
 		<Button android:text="保存" android:layout_weight="2"
 			android:layout_height="wrap_content" android:layout_width="fill_parent"
 			android:id="@+id/Button01"></Button>
