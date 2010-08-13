@@ -194,7 +194,7 @@ public class AppConfig extends Activity {
 					}
 				} while (c.moveToNext());
 			}
-			if (!found) mApps.add(info);
+			if (!found) if (!info.activityInfo.packageName.equalsIgnoreCase("com.redhorse.quickstart")) mApps.add(info);
 		}
 		if (c.moveToFirst()) {
 			do {
@@ -212,7 +212,7 @@ public class AppConfig extends Activity {
 						break;
 					}
 				}
-				if (found) mApps2.add(info);
+				if (found) if (!info.activityInfo.packageName.equalsIgnoreCase("com.redhorse.quickstart")) mApps2.add(info);
 			} while (c.moveToNext());
 		}
 		c.close();
