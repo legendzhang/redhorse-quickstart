@@ -35,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -85,6 +86,7 @@ public class AppConfig extends Activity {
         
 		loadApps(); // do this in onresume?
 
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_ROCKET_MENU_NOTIFY);
         setContentView(R.layout.applist);
         TabHost mTabHost = (TabHost)findViewById(R.id.tabhost); 
         mTabHost.setup();
@@ -194,7 +196,7 @@ public class AppConfig extends Activity {
 					}
 				} while (c.moveToNext());
 			}
-			if (!found) mApps.add(info);
+			if (!found) if (!info.activityInfo.packageName.equalsIgnoreCase("com.redhorse.quickstart")) mApps.add(info);
 		}
 		if (c.moveToFirst()) {
 			do {
@@ -212,7 +214,7 @@ public class AppConfig extends Activity {
 						break;
 					}
 				}
-				if (found) mApps2.add(info);
+				if (found) if (!info.activityInfo.packageName.equalsIgnoreCase("com.redhorse.quickstart")) mApps2.add(info);
 			} while (c.moveToNext());
 		}
 		c.close();

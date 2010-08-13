@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -92,7 +93,8 @@ public class AppAll extends Activity implements OnItemClickListener {
         
 		loadApps(); // do this in onresume?
 
-        setContentView(R.layout.appall);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_ROCKET_MENU_NOTIFY);
+		setContentView(R.layout.appall);
 		mGrid = (GridView) findViewById(R.id.myGrid);
 		mGrid.setAdapter(new AppsAdapter());
 		mGrid.setOnItemClickListener((OnItemClickListener) this);
@@ -170,15 +172,8 @@ public class AppAll extends Activity implements OnItemClickListener {
 		Intent it = new Intent();
 		switch (requestCode) {
 		case STARTUNINSTALL_REQUEST:
-			switch (resultCode) {
-			case RESULT_OK:
-//				loadApps();
-//		        setContentView(R.layout.appall);
-				break;
-			default:
-				break;
-			}
-			break;
+			loadApps();
+	    	mGrid.setAdapter(new AppsAdapter());
 		case STARTWEIBO_REQUEST:
 			break;
 		default:
@@ -218,7 +213,7 @@ public class AppAll extends Activity implements OnItemClickListener {
 		Iterator it1 = mAllApps.iterator();
 		while (it1.hasNext()) {
 			ResolveInfo info = (ResolveInfo) it1.next();
-			mApps.add(info);
+			if (!info.activityInfo.packageName.equalsIgnoreCase("com.redhorse.quickstart")) mApps.add(info);
 		}
 		c.close();
     }

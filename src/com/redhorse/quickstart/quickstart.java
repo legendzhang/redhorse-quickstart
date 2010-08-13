@@ -12,18 +12,22 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -44,23 +48,50 @@ public class quickstart extends Activity implements OnItemClickListener {
 	private static final int STARTCONFIG_REQUEST = 1;
 	private static final int STARTWEIBO_REQUEST = 2;
 
+	// @Override
+	// public void onConfigurationChanged(Configuration newConfig) {
+	// try {
+	// super.onConfigurationChanged(newConfig);
+	// if (this.getResources().getConfiguration().orientation ==
+	// Configuration.ORIENTATION_LANDSCAPE) {
+	// // land
+	// } else if (this.getResources().getConfiguration().orientation ==
+	// Configuration.ORIENTATION_PORTRAIT) {
+	// // port
+	// }
+	// } catch (Exception ex) {
+	// }
+	//
+	// }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		loadApps();
+		mGrid.setAdapter(new AppsAdapter());
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		dbStart.close();
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-//		notification(this, "小红马快速启动：随时启动你的最爱!");
-        Intent intent = new Intent();
-        intent.setClass(this, ServiceRed.class);
-        startService(intent);
-        
+		// notification(this, "小红马快速启动：随时启动你的最爱!");
+		Intent intent = new Intent();
+		intent.setClass(this, ServiceRed.class);
+		startService(intent);
+
 		dbStart = new dbStartConfigAdapter(this);
-        dbStart.open();
+		dbStart.open();
 
-        loadApps();
-
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_ROCKET_MENU_NOTIFY);
 		setContentView(R.layout.appgrid);
 		mGrid = (GridView) findViewById(R.id.myGrid);
-		mGrid.setAdapter(new AppsAdapter());
 		mGrid.setOnItemClickListener(this);
 		Button button = (Button) findViewById(R.id.Button01);
 		button.setOnClickListener(Button01Listener);
@@ -83,13 +114,12 @@ public class quickstart extends Activity implements OnItemClickListener {
 				Bundle b = data.getExtras();
 				String msg = b.getString("msg");
 				if (msg.equalsIgnoreCase("save")) {
-			        loadApps();
+					loadApps();
 					mGrid.setAdapter(new AppsAdapter());
 				} else if (msg.equalsIgnoreCase("config")) {
 				}
 				break;
 			default:
-				finish();
 				break;
 			}
 			break;
@@ -106,20 +136,29 @@ public class quickstart extends Activity implements OnItemClickListener {
 					ResolveInfo info = null;
 					while (it1.hasNext()) {
 						info = (ResolveInfo) it1.next();
-						if (packageName.equals(info.activityInfo.packageName) && name.equalsIgnoreCase(info.activityInfo.name)) {
-							Intent intent = new Intent();
-							intent.setClassName(info.activityInfo.packageName,
+						if (packageName.equals(info.activityInfo.packageName)
+								&& name.equalsIgnoreCase(info.activityInfo.name)) {
+							// Intent intent = new Intent();
+							// intent.setClassName(info.activityInfo.packageName,
+							// info.activityInfo.name);
+							// intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+							// startActivity(intent);
+							final Intent intent = new Intent(
+									Intent.ACTION_MAIN, null);
+							intent.addCategory(Intent.CATEGORY_LAUNCHER);
+							final ComponentName cn = new ComponentName(
+									info.activityInfo.packageName,
 									info.activityInfo.name);
+							intent.setComponent(cn);
 							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 							startActivity(intent);
 							break;
 						}
 					}
-					finish();
+//					finish();
 				}
 				break;
 			default:
-				finish();
 				break;
 			}
 			break;
@@ -155,7 +194,6 @@ public class quickstart extends Activity implements OnItemClickListener {
 			b.putString("msg", "quit");
 			i.putExtras(b);
 			quickstart.this.setResult(RESULT_OK, i);
-			dbStart.close();
 			quickstart.this.finish();
 		}
 	};
@@ -175,24 +213,27 @@ public class quickstart extends Activity implements OnItemClickListener {
 		mAllApps = getPackageManager().queryIntentActivities(mainIntent, 0);
 		mApps = new ArrayList<ResolveInfo>();
 		Cursor c = dbStart.getAllItems();
-//		Iterator it1 = mAllApps.iterator();
-//		while (it1.hasNext()) {
-//			boolean found=false;
-//			ResolveInfo info = (ResolveInfo) it1.next();
-//			if (c.moveToFirst()) {
-//				do {
-//					int idColumn = c.getColumnIndex(dbStart.KEY_ROWID);
-//					int pkgnameColumn = c.getColumnIndex(dbStart.KEY_PKGNAME);
-//					int appnameColumn = c.getColumnIndex(dbStart.KEY_APPNAME);
-//					int contentColumn = c.getColumnIndex(dbStart.KEY_CONTENT);
-//					if (c.getString(pkgnameColumn).equals(info.activityInfo.packageName) && c.getString(appnameColumn).equalsIgnoreCase(info.activityInfo.name)) {
-//						found = true;
-//						break;
-//					}
-//				} while (c.moveToNext());
-//			}
-//			if (found) mApps.add(info);
-//		}
+		// Iterator it1 = mAllApps.iterator();
+		// while (it1.hasNext()) {
+		// boolean found=false;
+		// ResolveInfo info = (ResolveInfo) it1.next();
+		// if (c.moveToFirst()) {
+		// do {
+		// int idColumn = c.getColumnIndex(dbStart.KEY_ROWID);
+		// int pkgnameColumn = c.getColumnIndex(dbStart.KEY_PKGNAME);
+		// int appnameColumn = c.getColumnIndex(dbStart.KEY_APPNAME);
+		// int contentColumn = c.getColumnIndex(dbStart.KEY_CONTENT);
+		// if (c.getString(pkgnameColumn).equals(info.activityInfo.packageName)
+		// &&
+		// c.getString(appnameColumn).equalsIgnoreCase(info.activityInfo.name))
+		// {
+		// found = true;
+		// break;
+		// }
+		// } while (c.moveToNext());
+		// }
+		// if (found) mApps.add(info);
+		// }
 		if (c.moveToFirst()) {
 			do {
 				int idColumn = c.getColumnIndex(dbStart.KEY_ROWID);
@@ -200,16 +241,22 @@ public class quickstart extends Activity implements OnItemClickListener {
 				int appnameColumn = c.getColumnIndex(dbStart.KEY_APPNAME);
 				int contentColumn = c.getColumnIndex(dbStart.KEY_CONTENT);
 				Iterator it1 = mAllApps.iterator();
-				boolean found=false;
+				boolean found = false;
 				ResolveInfo info = null;
 				while (it1.hasNext()) {
 					info = (ResolveInfo) it1.next();
-					if (c.getString(pkgnameColumn).equals(info.activityInfo.packageName) && c.getString(appnameColumn).equalsIgnoreCase(info.activityInfo.name)) {
+					if (c.getString(pkgnameColumn).equals(
+							info.activityInfo.packageName)
+							&& c.getString(appnameColumn).equalsIgnoreCase(
+									info.activityInfo.name)) {
 						found = true;
 						break;
 					}
 				}
-				if (found) mApps.add(info);
+				if (found)
+					if (!info.activityInfo.packageName
+							.equalsIgnoreCase("com.redhorse.quickstart"))
+						mApps.add(info);
 			} while (c.moveToNext());
 		}
 		c.close();
@@ -223,18 +270,26 @@ public class quickstart extends Activity implements OnItemClickListener {
 		ResolveInfo info = mApps.get(position);
 		Log.e("grid1", info.activityInfo.packageName);
 
-		Intent intent = new Intent();
-		intent.setClassName(info.activityInfo.packageName,
-				info.activityInfo.name);
+		// 旧代码 导致拨号和联系人无法打开
+		// Intent intent = new Intent();
+		// intent.setClassName(info.activityInfo.packageName,
+		// info.activityInfo.name);
+		// intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		// startActivity(intent);
+		final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		final ComponentName cn = new ComponentName(
+				info.activityInfo.packageName, info.activityInfo.name);
+		intent.setComponent(cn);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
+
 		Intent i = getIntent();
 		Bundle b = new Bundle();
 		b.putString("msg", "quit");
 		i.putExtras(b);
 		quickstart.this.setResult(RESULT_OK, i);
-		dbStart.close();
-		quickstart.this.finish();
+//		quickstart.this.finish();
 	}
 
 	public class AppsAdapter extends BaseAdapter {
@@ -256,15 +311,31 @@ public class quickstart extends Activity implements OnItemClickListener {
 			//
 			// return i;
 
-			LinearLayout layout = new LinearLayout(quickstart.this);
-			layout.setOrientation(LinearLayout.VERTICAL);
+			// LinearLayout layout = new LinearLayout(quickstart.this);
+			// layout.setOrientation(LinearLayout.VERTICAL);
+			//
+			// ResolveInfo info = mApps.get(position);
+			// layout.addView(addTitleView(
+			// info.activityInfo.loadIcon(getPackageManager()),
+			// info.activityInfo.loadLabel(getPackageManager()).toString()));
+			//
+			// return layout;
 
+			// 从layout文件生成list里面的内容
 			ResolveInfo info = mApps.get(position);
-			layout.addView(addTitleView(
-					info.activityInfo.loadIcon(getPackageManager()),
-					info.activityInfo.loadLabel(getPackageManager()).toString()));
+			convertView = LayoutInflater.from(getApplicationContext()).inflate(
+					R.layout.listitem, null);
 
-			return layout;
+			TextView mTextView = (TextView) convertView
+					.findViewById(R.id.imageTitle);
+			mTextView.setText(info.activityInfo.loadLabel(getPackageManager())
+					.toString());
+			ImageView mImageView = (ImageView) convertView
+					.findViewById(R.id.imageView);
+			mImageView.setImageDrawable(info.activityInfo
+					.loadIcon(getPackageManager()));
+			return convertView;
+
 		}
 
 		public final int getCount() {
@@ -313,8 +384,8 @@ public class quickstart extends Activity implements OnItemClickListener {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu);
-//		menu.add(1, ITEM_ID_SETTING, 0, R.string.setting).setIcon(
-//				R.drawable.menu_syssettings);
+		// menu.add(1, ITEM_ID_SETTING, 0, R.string.setting).setIcon(
+		// R.drawable.menu_syssettings);
 		menu.add(1, ITEM_ID_ABOUT, 0, R.string.about).setIcon(
 				R.drawable.menu_help);
 		return true;
@@ -326,9 +397,9 @@ public class quickstart extends Activity implements OnItemClickListener {
 		// TODO Auto-generated method stub
 		switch (item.getItemId()) {
 		case ITEM_ID_SETTING:
-//			Intent setting = new Intent();
-//			setting.setClass(redhorse.this, quickstart.class);
-//			startActivity(setting);
+			// Intent setting = new Intent();
+			// setting.setClass(redhorse.this, quickstart.class);
+			// startActivity(setting);
 			break;
 		case ITEM_ID_ABOUT:
 			Intent setting = new Intent();
@@ -347,8 +418,9 @@ public class quickstart extends Activity implements OnItemClickListener {
 					.getSystemService(Context.NOTIFICATION_SERVICE);
 			Intent intent = new Intent(ctx, quickstart.class);
 			CharSequence appName = ctx.getString(R.string.app_name);
-			Notification notification = new Notification(R.drawable.icon_noborder,
-					appName, System.currentTimeMillis());
+			Notification notification = new Notification(
+					R.drawable.icon_noborder, appName,
+					System.currentTimeMillis());
 			notification.flags = Notification.FLAG_NO_CLEAR;
 			CharSequence appDescription = msginfo;
 			notification.setLatestEventInfo(ctx, appName, appDescription,
