@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -107,11 +108,17 @@ public class quickstart extends Activity implements OnItemClickListener {
 					while (it1.hasNext()) {
 						info = (ResolveInfo) it1.next();
 						if (packageName.equals(info.activityInfo.packageName) && name.equalsIgnoreCase(info.activityInfo.name)) {
-							Intent intent = new Intent();
-							intent.setClassName(info.activityInfo.packageName,
-									info.activityInfo.name);
-							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-							startActivity(intent);
+//							Intent intent = new Intent();
+//							intent.setClassName(info.activityInfo.packageName,
+//									info.activityInfo.name);
+//							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//							startActivity(intent);
+							final Intent intent = new Intent(Intent.ACTION_MAIN, null);  
+							intent.addCategory(Intent.CATEGORY_LAUNCHER);  
+							final ComponentName cn = new ComponentName(info.activityInfo.packageName, info.activityInfo.name);  
+							intent.setComponent(cn);  
+							intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  
+							startActivity( intent);
 							break;
 						}
 					}
@@ -222,12 +229,20 @@ public class quickstart extends Activity implements OnItemClickListener {
 		Log.e("grid1", "click");
 		ResolveInfo info = mApps.get(position);
 		Log.e("grid1", info.activityInfo.packageName);
-
-		Intent intent = new Intent();
-		intent.setClassName(info.activityInfo.packageName,
-				info.activityInfo.name);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		startActivity(intent);
+		
+		// 旧代码 导致拨号和联系人无法打开
+//		Intent intent = new Intent();
+//		intent.setClassName(info.activityInfo.packageName,
+//				info.activityInfo.name);
+//		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//		startActivity(intent);
+		final Intent intent = new Intent(Intent.ACTION_MAIN, null);  
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);  
+		final ComponentName cn = new ComponentName(info.activityInfo.packageName, info.activityInfo.name);  
+		intent.setComponent(cn);  
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);  
+		startActivity( intent);
+		
 		Intent i = getIntent();
 		Bundle b = new Bundle();
 		b.putString("msg", "quit");
